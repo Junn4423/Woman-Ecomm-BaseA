@@ -20,7 +20,7 @@ variable "aws_region" {
 }
 
 variable "app_name" {
-  default = "womens-ecommerce"
+  default = "woman-ecomm-base-a"
 }
 
 variable "environment" {

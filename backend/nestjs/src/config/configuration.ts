@@ -18,11 +18,12 @@ export default () => ({
   },
   
   storage: {
-    endpoint: process.env.STORAGE_ENDPOINT,
+    endpoint: process.env.STORAGE_ENDPOINT || 'https://s3.fpt.vn',
     region: process.env.STORAGE_REGION || 'ap-southeast-1',
     accessKey: process.env.STORAGE_ACCESS_KEY,
     secretKey: process.env.STORAGE_SECRET_KEY,
     bucket: process.env.STORAGE_BUCKET || 'woman-ecomm',
+    cdnUrl: process.env.STORAGE_CDN_URL || process.env.STORAGE_ENDPOINT,
   },
   
   payment: {

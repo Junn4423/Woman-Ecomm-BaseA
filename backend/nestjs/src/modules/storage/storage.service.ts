@@ -16,22 +16,33 @@ export class StorageService {
   private readonly s3Client: S3Client;
   private readonly bucket: string;
   private readonly cdnUrl: string;
+  private readonly endpoint: string;
 
   constructor(private configService: ConfigService) {
-    const s3Config = this.configService.get('storage.s3');
-    
+    const storageConfig = this.configService.get('storage');
+
+    if (
+      !storageConfig?.endpoint ||
+      !storageConfig?.accessKey ||
+      !storageConfig?.secretKey ||
+      !storageConfig?.bucket
+    ) {
+      throw new Error('Storage configuration is missing required values');
+    }
+
     this.s3Client = new S3Client({
-      region: s3Config.region,
-      endpoint: s3Config.endpoint,
+      region: storageConfig.region,
+      endpoint: storageConfig.endpoint,
       credentials: {
-        accessKeyId: s3Config.accessKeyId,
-        secretAccessKey: s3Config.secretAccessKey,
+        accessKeyId: storageConfig.accessKey,
+        secretAccessKey: storageConfig.secretKey,
       },
       forcePathStyle: true, // Required for FPT Storage and other S3-compatible services
     });
 
-    this.bucket = s3Config.bucket;
-    this.cdnUrl = s3Config.cdnUrl;
+    this.bucket = storageConfig.bucket;
+    this.cdnUrl = storageConfig.cdnUrl;
+    this.endpoint = storageConfig.endpoint;
   }
 
   // Upload file
@@ -76,6 +87,8 @@ export class StorageService {
 
       const url = this.cdnUrl
         ? `${this.cdnUrl}/${key}`
+        : this.endpoint
+        ? `${this.endpoint}/${this.bucket}/${key}`
         : `https://${this.bucket}.s3.amazonaws.com/${key}`;
 
       this.logger.log(`File uploaded: ${key}`);
