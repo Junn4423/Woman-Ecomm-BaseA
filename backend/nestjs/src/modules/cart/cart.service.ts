@@ -14,7 +14,7 @@ export class CartService {
   ) {}
 
   // Get or create cart for user
-  async getCart(userId: string): Promise<Cart> {
+  async getCart(userId: string): Promise<CartDocument> {
     let cart = await this.cartModel.findOne({ userId }).exec();
     
     if (!cart) {
@@ -31,11 +31,11 @@ export class CartService {
     // Refresh product data from Strapi
     await this.refreshCartPrices(cart);
     
-    return cart;
+    return cart as CartDocument;
   }
 
   // Add item to cart
-  async addToCart(userId: string, addToCartDto: AddToCartDto): Promise<Cart> {
+  async addToCart(userId: string, addToCartDto: AddToCartDto): Promise<CartDocument> {
     const cart = await this.getCart(userId);
 
     // Fetch product from Strapi to validate and get current price
@@ -107,7 +107,7 @@ export class CartService {
     userId: string,
     itemId: string,
     updateDto: UpdateCartItemDto,
-  ): Promise<Cart> {
+  ): Promise<CartDocument> {
     const cart = await this.getCart(userId);
     
     const itemIndex = cart.items.findIndex(
@@ -151,7 +151,7 @@ export class CartService {
   }
 
   // Remove item from cart
-  async removeFromCart(userId: string, itemId: string): Promise<Cart> {
+  async removeFromCart(userId: string, itemId: string): Promise<CartDocument> {
     const cart = await this.getCart(userId);
     
     const itemIndex = cart.items.findIndex(
@@ -169,7 +169,7 @@ export class CartService {
   }
 
   // Clear entire cart
-  async clearCart(userId: string): Promise<Cart> {
+  async clearCart(userId: string): Promise<CartDocument> {
     const cart = await this.getCart(userId);
     cart.items = [];
     cart.couponCode = null;
@@ -180,7 +180,7 @@ export class CartService {
   }
 
   // Apply coupon
-  async applyCoupon(userId: string, couponCode: string): Promise<Cart> {
+  async applyCoupon(userId: string, couponCode: string): Promise<CartDocument> {
     const cart = await this.getCart(userId);
     
     // TODO: Validate coupon from coupons service
@@ -196,7 +196,7 @@ export class CartService {
   }
 
   // Remove coupon
-  async removeCoupon(userId: string): Promise<Cart> {
+  async removeCoupon(userId: string): Promise<CartDocument> {
     const cart = await this.getCart(userId);
     cart.couponCode = null;
     cart.discount = 0;

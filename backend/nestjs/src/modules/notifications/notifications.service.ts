@@ -96,7 +96,10 @@ export class NotificationsService {
   }
 
   // Mark single notification as read
-  async markAsRead(notificationId: string, userId: string): Promise<Notification> {
+  async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<Notification | null> {
     const notification = await this.notificationModel.findOneAndUpdate(
       {
         _id: notificationId,

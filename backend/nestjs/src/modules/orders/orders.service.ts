@@ -101,9 +101,10 @@ export class OrdersService {
   private async deductStock(order: OrderDocument): Promise<void> {
     for (const item of order.items) {
       try {
+        const strapiId = item.strapiProductId || item.productId;
         await this.strapiService.updateProductStock(
-          item.strapiProductId,
-          item.variantId,
+          strapiId,
+          item.variantId ?? null,
           item.quantity,
         );
       } catch (error) {
@@ -120,9 +121,10 @@ export class OrdersService {
   private async restoreStock(order: OrderDocument): Promise<void> {
     for (const item of order.items) {
       try {
+        const strapiId = item.strapiProductId || item.productId;
         await this.strapiService.restoreProductStock(
-          item.strapiProductId,
-          item.variantId,
+          strapiId,
+          item.variantId ?? null,
           item.quantity,
         );
       } catch (error) {

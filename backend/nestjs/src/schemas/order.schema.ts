@@ -1,9 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
+export enum OrderStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  PROCESSING = 'processing',
+  SHIPPED = 'shipping',
+  DELIVERED = 'delivered',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded',
+}
+
+export enum PaymentStatus {
+  PENDING = 'pending',
+  PAID = 'paid',
+  FAILED = 'failed',
+  REFUNDED = 'refunded',
+}
+
 export type OrderDocument = Order & Document;
 
-@Schema({ 
+@Schema({
   timestamps: true,
   collection: 'orders',
 })
@@ -17,15 +35,18 @@ export class Order {
   @Prop({ type: [Object], required: true })
   items: {
     productId: string;
-    productName: string;
-    productSlug: string;
-    productImage: string;
-    variantId?: string;
+    strapiProductId?: string;
+    name: string;
+    slug?: string;
+    image?: string;
+    variantId?: string | null;
     variantName?: string;
-    sku: string;
+    sku?: string;
     price: number;
     quantity: number;
-    total: number;
+    size?: string;
+    color?: string;
+    total?: number;
   }[];
 
   @Prop({ required: true })
@@ -40,25 +61,25 @@ export class Order {
   @Prop({ required: true })
   total: number;
 
-  @Prop({ 
-    required: true, 
-    enum: ['pending', 'confirmed', 'processing', 'shipping', 'delivered', 'completed', 'cancelled', 'refunded'],
-    default: 'pending'
+  @Prop({
+    required: true,
+    enum: Object.values(OrderStatus),
+    default: OrderStatus.PENDING,
   })
-  status: string;
+  status: OrderStatus;
 
-  @Prop({ 
-    required: true, 
+  @Prop({
+    required: true,
     enum: ['cod', 'bank_transfer', 'vnpay', 'momo', 'zalopay'],
-    default: 'cod'
+    default: 'cod',
   })
   paymentMethod: string;
 
-  @Prop({ 
-    enum: ['pending', 'paid', 'failed', 'refunded'],
-    default: 'pending'
+  @Prop({
+    enum: Object.values(PaymentStatus),
+    default: PaymentStatus.PENDING,
   })
-  paymentStatus: string;
+  paymentStatus: PaymentStatus;
 
   @Prop({ type: Object })
   paymentDetails: {
@@ -100,7 +121,16 @@ export class Order {
   };
 
   @Prop()
+  couponCode?: string;
+
+  @Prop()
+  paymentUrl?: string;
+
+  @Prop()
   trackingNumber: string;
+
+  @Prop()
+  trackingUrl?: string;
 
   @Prop()
   shippingCarrier: string;
@@ -116,6 +146,12 @@ export class Order {
 
   @Prop()
   cancelReason: string;
+
+  @Prop()
+  transactionId?: string;
+
+  @Prop()
+  paidAt?: Date;
 
   @Prop({ type: [Object], default: [] })
   statusHistory: {

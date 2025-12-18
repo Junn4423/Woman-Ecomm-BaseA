@@ -46,12 +46,16 @@ export class PaymentsService {
     // Sort parameters
     vnp_Params = this.sortObject(vnp_Params);
 
-    const signData = querystring.stringify(vnp_Params, { encode: false });
+    const signData = querystring.stringify(vnp_Params, undefined, undefined, {
+      encodeURIComponent: (v) => v as string,
+    });
     const hmac = crypto.createHmac('sha512', vnpConfig.hashSecret);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
 
-    const vnpUrl = `${vnpConfig.url}?${querystring.stringify(vnp_Params, { encode: false })}`;
+    const vnpUrl = `${vnpConfig.url}?${querystring.stringify(vnp_Params, undefined, undefined, {
+      encodeURIComponent: (v) => v as string,
+    })}`;
     
     this.logger.log(`Created VNPay URL for order ${order.orderNumber}`);
     return vnpUrl;
@@ -72,7 +76,9 @@ export class PaymentsService {
     delete vnp_Params['vnp_SecureHashType'];
 
     const sortedParams = this.sortObject(vnp_Params);
-    const signData = querystring.stringify(sortedParams, { encode: false });
+    const signData = querystring.stringify(sortedParams, undefined, undefined, {
+      encodeURIComponent: (v) => v as string,
+    });
     const hmac = crypto.createHmac('sha512', vnpConfig.hashSecret);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 

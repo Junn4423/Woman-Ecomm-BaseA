@@ -12,7 +12,7 @@ export class WishlistService {
   ) {}
 
   // Get or create wishlist for user
-  async getWishlist(userId: string): Promise<Wishlist> {
+  async getWishlist(userId: string): Promise<WishlistDocument> {
     let wishlist = await this.wishlistModel
       .findOne({ userId: new Types.ObjectId(userId) })
       .exec();

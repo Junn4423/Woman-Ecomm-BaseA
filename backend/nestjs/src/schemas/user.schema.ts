@@ -93,11 +93,11 @@ UserSchema.virtual('fullName').get(function() {
 UserSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {
-    delete ret.password;
-    delete ret.passwordResetToken;
-    delete ret.passwordResetExpires;
-    delete ret.emailVerificationToken;
-    delete ret.__v;
+    delete (ret as any).password;
+    delete (ret as any).passwordResetToken;
+    delete (ret as any).passwordResetExpires;
+    delete (ret as any).emailVerificationToken;
+    delete (ret as any).__v;
     return ret;
   },
 });
