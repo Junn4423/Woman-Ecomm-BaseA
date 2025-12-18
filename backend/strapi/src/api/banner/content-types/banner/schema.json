@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "banners",
+  "info": {
+    "singularName": "banner",
+    "pluralName": "banners",
+    "displayName": "Banner",
+    "description": "Banner quảng cáo"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "text"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "mobileImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "link": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "buttonText": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "position": {
+      "type": "enumeration",
+      "enum": ["hero", "homepage", "category", "promo"],
+      "default": "homepage"
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "startDate": {
+      "type": "datetime"
+    },
+    "endDate": {
+      "type": "datetime"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "woman-ecomm-strapi",
+  "version": "1.0.0",
+  "description": "Women's Fashion E-commerce - Strapi CMS",
+  "private": true,
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/strapi": "4.21.0",
+    "@strapi/plugin-users-permissions": "4.21.0",
+    "@strapi/plugin-i18n": "4.21.0",
+    "@strapi/plugin-cloud": "4.21.0",
+    "@strapi/provider-upload-aws-s3": "4.21.0",
+    "strapi-provider-upload-ftp": "^1.0.1",
+    "mongoose": "^8.2.0",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}

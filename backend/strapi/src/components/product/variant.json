@@ -1,0 +1,46 @@
+{
+  "collectionName": "components_product_variants",
+  "info": {
+    "displayName": "Biến thể",
+    "icon": "cube",
+    "description": "Biến thể sản phẩm (size, màu)"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sku": {
+      "type": "string",
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "min": 0
+    },
+    "stock": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "size": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "colorCode": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

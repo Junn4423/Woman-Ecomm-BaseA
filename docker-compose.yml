@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: woman-ecomm-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123456
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - ecomm-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Strapi CMS (Admin Panel & Content Management)
+  strapi:
+    build:
+      context: ./backend/strapi
+      dockerfile: Dockerfile
+    container_name: woman-ecomm-strapi
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_CLIENT: mongo
+      DATABASE_HOST: mongodb
+      DATABASE_PORT: 27017
+      DATABASE_NAME: ecommerce_cms
+      DATABASE_USERNAME: admin
+      DATABASE_PASSWORD: admin123456
+      JWT_SECRET: strapi-jwt-secret-key-change-in-production
+      ADMIN_JWT_SECRET: strapi-admin-jwt-secret-change-in-production
+      APP_KEYS: key1,key2,key3,key4
+      API_TOKEN_SALT: strapi-api-token-salt-change-in-production
+      TRANSFER_TOKEN_SALT: strapi-transfer-token-salt
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./backend/strapi:/srv/app
+      - strapi_node_modules:/srv/app/node_modules
+    networks:
+      - ecomm-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # NestJS API (Business Logic)
+  nestjs:
+    build:
+      context: ./backend/nestjs
+      dockerfile: Dockerfile
+    container_name: woman-ecomm-nestjs
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://admin:admin123456@mongodb:27017/ecommerce_core?authSource=admin
+      STRAPI_URL: http://strapi:1337
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN:-}
+      JWT_SECRET: nestjs-jwt-secret-key-change-in-production
+      JWT_EXPIRES_IN: 7d
+      # FPT Storage / AWS S3 Compatible
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
+      STORAGE_REGION: ${STORAGE_REGION:-ap-southeast-1}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-woman-ecomm}
+      # Payment
+      VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
+      VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/nestjs:/srv/app
+      - nestjs_node_modules:/srv/app/node_modules
+    networks:
+      - ecomm-network
+    depends_on:
+      - mongodb
+      - strapi
+
+  # Next.js Frontend
+  nextjs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: woman-ecomm-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_STRAPI_URL: http://localhost:1337
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_NAME: "Thời Trang Nữ Việt"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/srv/app
+      - nextjs_node_modules:/srv/app/node_modules
+      - nextjs_next:/srv/app/.next
+    networks:
+      - ecomm-network
+    depends_on:
+      - nestjs
+      - strapi
+
+  # Redis (Session & Cache)
+  redis:
+    image: redis:7-alpine
+    container_name: woman-ecomm-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ecomm-network
+    command: redis-server --appendonly yes
+
+networks:
+  ecomm-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  strapi_node_modules:
+  nestjs_node_modules:
+  nextjs_node_modules:
+  nextjs_next:
+  redis_data:
